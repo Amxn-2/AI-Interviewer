@@ -24,15 +24,8 @@ export async function signUp(params: SignUpParams){
             success: true,
             message: 'Account created successfully. Please sign in.'
         }
-    } catch(e: any){
+    } catch(e: unknown){
         console.log('Error creating a user', e);
-
-        if(e.code === 'auth/email-already-exists'){
-            return{
-                success: false,
-                message: 'THis email is already in use.'
-            }
-        }
         return{
             success: false,
             message: 'Failed to create an account.'
@@ -53,7 +46,7 @@ export async function signIn(params: SignInParams) {
             }
         }
         await setSessionCookie(idToken);
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.log(e);
         return{
             success: false,
