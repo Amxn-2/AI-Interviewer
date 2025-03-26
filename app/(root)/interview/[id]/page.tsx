@@ -14,8 +14,8 @@ import DisplayTechIcons from "@/components/DisplayTechIcons";
 
 const InterviewDetails = async ({ params }: RouteParams) => {
   const { id } = await params;
-
   const user = await getCurrentUser();
+  if (!user) redirect("/");
 
   const interview = await getInterviewById(id);
   if (!interview) redirect("/");
