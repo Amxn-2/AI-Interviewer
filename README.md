@@ -77,7 +77,6 @@ Create a new file named `.env.local` in the root of your project and add the fol
 
 ```env
 NEXT_PUBLIC_VAPI_WEB_TOKEN=
-NEXT_PUBLIC_VAPI_WORKFLOW_ID=
 
 GOOGLE_GENERATIVE_AI_API_KEY=
 
