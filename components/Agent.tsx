@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
-import { interviewer } from "@/constants";
-import { createFeedback } from "@/lib/actions/general.action";
+import { interviewer, generateInterviewAssistant } from "@/constants";
+import { createFeedback, createInterview } from "@/lib/actions/general.action";
 
 enum CallStatus {
   INACTIVE = "INACTIVE",
@@ -34,6 +34,7 @@ const Agent = ({
   const [messages, setMessages] = useState<SavedMessage[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [lastMessage, setLastMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const onCallStart = () => {
@@ -105,9 +106,28 @@ const Agent = ({
       }
     };
 
+    const handleCreateInterview = async (messages: SavedMessage[]) => {
+      console.log("handleCreateInterview");
+      setIsLoading(true);
+
+      const { success } = await createInterview({
+        userId: userId!,
+        transcript: messages,
+      });
+
+      setIsLoading(false);
+
+      if (success) {
+        router.push("/");
+      } else {
+        console.log("Error creating interview");
+        router.push("/");
+      }
+    };
+
     if (callStatus === CallStatus.FINISHED) {
       if (type === "generate") {
-        router.push("/");
+        handleCreateInterview(messages);
       } else {
         handleGenerateFeedback(messages);
       }
@@ -118,12 +138,7 @@ const Agent = ({
     setCallStatus(CallStatus.CONNECTING);
 
     if (type === "generate") {
-      await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID!, {
-        variableValues: {
-          username: userName,
-          userid: userId,
-        },
-      });
+      await vapi.start(generateInterviewAssistant(userName, userId!));
     } else {
       let formattedQuestions = "";
       if (questions) {
@@ -194,9 +209,21 @@ const Agent = ({
         </div>
       )}
 
+      {isLoading && (
+        <div className="transcript-border">
+          <div className="transcript">
+            <p className="animate-pulse">Generating your interview questions…</p>
+          </div>
+        </div>
+      )}
+
       <div className="w-full flex justify-center">
         {callStatus !== "ACTIVE" ? (
-          <button className="relative btn-call" onClick={() => handleCall()}>
+          <button
+            className="relative btn-call"
+            onClick={() => handleCall()}
+            disabled={isLoading}
+          >
             <span
               className={cn(
                 "absolute animate-ping rounded-full opacity-75",

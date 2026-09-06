@@ -97,6 +97,54 @@ export const mappings = {
   "aws amplify": "amplify",
 };
 
+export const generateInterviewAssistant = (
+  userName: string,
+  userId: string
+): CreateAssistantDTO => ({
+  name: "Interview Generator",
+  firstMessage: `Hi ${userName}! I'm here to help you set up a personalized mock interview. I'll ask you a few quick questions about the role you're preparing for, and then generate a custom set of interview questions for you. Ready? Let's start — what job role are you preparing to interview for?`,
+  transcriber: {
+    provider: "deepgram",
+    model: "nova-2",
+    language: "en",
+  },
+  voice: {
+    provider: "11labs",
+    voiceId: "sarah",
+    stability: 0.4,
+    similarityBoost: 0.8,
+    speed: 0.9,
+    style: 0.5,
+    useSpeakerBoost: true,
+  },
+  model: {
+    provider: "openai",
+    model: "gpt-4o",
+    messages: [
+      {
+        role: "system",
+        content: `You are an AI assistant helping to set up a mock interview for a user. The user's name is "${userName}" and their user ID is "${userId}".
+
+Your goal is to collect the following information through friendly conversation:
+1. **Job Role** – What position are they interviewing for? (e.g., Frontend Developer, Data Scientist)
+2. **Experience Level** – Junior, Mid-level, or Senior?
+3. **Tech Stack** – What technologies, languages, or tools are relevant to the role?
+4. **Interview Type** – Technical, Behavioral, or Mixed?
+5. **Number of Questions** – How many interview questions would they like? (between 5 and 15)
+
+Guidelines:
+- Ask one question at a time. Keep it conversational and friendly.
+- Once you have collected all five pieces of information, confirm the details with the user.
+- After confirmation, say exactly: "Great! I'll generate your interview questions now. Please wait a moment." and then end the call.
+- Keep your responses short and natural — this is a voice conversation.
+- Do not generate the questions yourself; your job is only to collect the information.`,
+      },
+    ],
+  },
+  clientMessages: ["transcript", "hang", "function-call"] as never,
+  serverMessages: [] as never,
+});
+
 export const interviewer: CreateAssistantDTO = {
   name: "Interviewer",
   firstMessage:
