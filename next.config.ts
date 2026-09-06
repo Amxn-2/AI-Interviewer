@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
+  },
+  experimental: {
+    serverComponentsExternalPackages: ["firebase-admin"],
   }
 };
 
